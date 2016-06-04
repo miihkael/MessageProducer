@@ -1,0 +1,25 @@
+
+
+.nbrcol01{
+    font-weight: bold;
+    vertical-align: top;
+    text-align: left;
+}
+
+.txtcol01{
+    width: 800px;
+}
+
+.radiobtn{
+    width:50px;
+    alignment: center;
+}
+
+#sensidfield{
+    width: 400px;
+}
+
+#filefield{
+    width: 100%;
+}
+
