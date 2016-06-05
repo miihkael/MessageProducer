@@ -42,7 +42,7 @@
                             The Producer reads one line at a time from the file and sends it as a message. In the end of
                             the file the sending continues again at the beginning of the file.
                             NOTICE: This is server, so the file must be present on server side (in the server
-                                    application directory (or it must be uploaded to the server)!
+                                    application directory or it must be uploaded to the server)!
                         </td>
                     </tr>
                 </table>

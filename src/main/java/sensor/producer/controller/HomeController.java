@@ -110,6 +110,17 @@ public class HomeController {
 
             thread.start();
             model.addAttribute("sessionData", sesData);
+
+            try {
+                Thread.sleep(500);
+            }
+            catch (Exception e) {
+
+            }
+            if (!thread.isAlive()) {
+                bindingResult.addError(new ObjectError("usererror", "Problem with msessage sending thread - sending terminated!"));
+                return "/home";
+            }
         }
         catch (Exception e) {
             //logger.

@@ -25,7 +25,7 @@ public class Producer extends Thread {
     }
 
     public void Terminate() {
-        fRunning = false;
+        this.fRunning = false;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class Producer extends Thread {
         // start sending messages until thread is run down...
         MessageService messageService = sessionData.getMessageService();
         if (messageService == null) {
-            // logita virhe ja tee jotakin drastic...!!!!
+            // logita virhe ja tee jotakin...!!!!
             // TODO: what happens if this is taken place? Form is still opened...!
 
             return;
@@ -88,7 +88,7 @@ public class Producer extends Thread {
 
                 }
 
-                continue;
+                continue;   // There may be no listeners, so just continue sending...
             }
 
             try {
