@@ -226,7 +226,7 @@
               <version>2.2</version>
               <configuration>
                   <path>/</path>
-                  <port>8989</port>
+                  <port>8990</port>
                   <ajpPort>8109</ajpPort>
               </configuration>
           </plugin>

@@ -19,43 +19,50 @@
 </head>
 <body>
 
-<form action='<c:url value="/producing" />' method="POST">
+<form:form method="POST" action="/producing" modelAttribute="sensorForm">
 
-    <h2>Sending messages .....:</h2>
+    <spring:hasBindErrors name="usererror">
+        <c:forEach var="error" items="${errors.allErrors}">
+            <!--  error is of type class FieldError -->
+            <b>${error.field} <spring:message message="${error}" /></b>
+            <br />
+        </c:forEach>
+        <hr />
+        <br />
+    </spring:hasBindErrors>
 
-    <table>
+    <br/>
+    <br/>
+    <th>
+        <button type="submit" name="actionbutton" value="submit"><span>Stop Messaging</span></button>
+    </th>
+
+    <table id="sensors">
+        <thead>
         <tr>
-            <th class="nbrcol01">Sensor Id Tag:</th>
-            <td>
-                <input class="text" name="sensorid" value="${sessionData.strSensorId}" readonly />
-            </td>
+            <th>No.</th>
+            <th>SensorId/ApiKey</th>
+            <th>Sensor Type</th>
+            <th>Message File</th>
+            <th>Timeout (ms)</th>
+            <th>Status</th>
         </tr>
-        <tr>
-            <th class="nbrcol01">Message type:</th>
-            <td>
-                <input class="text" name="msgtyped" value="${sessionData.strMsgType}" readonly />
-            </td>
-        </tr>
-        <tr>
-            <th class="nbrcol01">Message File:</th>
-            <td>
-                <input class="text" name="msgfile" value="${sessionData.strMsgFile}" readonly />
-            </td>
-        </tr>
-        <tr>
-            <th></th>
-            <th>
-                <hr />
-            </th>
-        </tr>
-        <tr>
-            <th></th>
-            <th>
-                <input type="submit" name="actionbutton" value="Stop Messaging" id="idsubmit" />
-            </th>
-        </tr>
+        </thead>
+        <tbody>
+        <td><input type="hidden" name="sensorInForm"/></td>
+        <c:forEach items="${sensorForm.sensorsInForm}" var="sensor" varStatus="status">
+            <tr>
+                <td aling="center">${status.count}</td>
+                <td>${sensor.sensorId}<input type="hidden" name="sensorsInForm[${status.index}].sensorId" value="${sensor.sensorId}"/></td>
+                <td>${sensor.sensorType}<input type="hidden" name="sensorsInForm[${status.index}].sensorType" value="${sensor.sensorType}"/></td>
+                <td>${sensor.messageFile}<input type="hidden" name="sensorsInForm[${status.index}].messageFile" value="${sensor.messageFile}"/></td>
+                <td>${sensor.timeOut}<input type="hidden" name="sensorsInForm[${status.index}].timeOut" value="${sensor.timeOut}"/></td>
+                <td>${sensor.strStatus}<input type="hidden" name="sensorsInForm[${status.index}].strStatus" value="${sensor.strStatus}"/></td>
+              </tr>
+        </c:forEach>
+        </tbody>
     </table>
-</form>
+</form:form>
 
 </body>
 </html>

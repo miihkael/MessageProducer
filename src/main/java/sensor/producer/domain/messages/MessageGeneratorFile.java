@@ -1,6 +1,7 @@
 package sensor.producer.domain.messages;
 
-import sensor.producer.data.DSessionData;
+import org.joda.time.DateTime;
+import sensor.producer.data.Sensor;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -12,18 +13,21 @@ import java.io.IOException;
 public class MessageGeneratorFile implements MessageGenerator {
 
     private String sensorId;
+    private int threadId;
     private String strFile = null;
     private BufferedReader br = null;
     private int iFileStart;
 
     @Override
-    public boolean setUpMessaging(DSessionData sessionData) {
-        if ( sessionData == null || sessionData.getStrMsgFile().isEmpty() ) {
+    public boolean setUpMessaging(Sensor sensor, Integer iThreadNbr) {
+        if ( sensor == null || sensor.getMessageFile().isEmpty() ) {
             return false;
         }
 
-        sensorId = sessionData.getStrSensorId();
-        strFile = sessionData.getStrMsgFile();
+        // TODO: get message file path from sessionData first....!!!!!
+        this.sensorId = sensor.getSensorId();
+        this.threadId = iThreadNbr;
+        strFile = sensor.getMessageFile();
 
         try {
             br = SetupFileReader();
@@ -42,6 +46,7 @@ public class MessageGeneratorFile implements MessageGenerator {
         }
         boolean fRead = true;
         StringBuffer strRet = new StringBuffer();
+        DateTime eventTime = DateTime.now();
 
         while (fRead) {
             try {
@@ -50,6 +55,8 @@ public class MessageGeneratorFile implements MessageGenerator {
                 if ( (strTemp = br.readLine()) != null ) {
                     // At the end of the file... start again!
                     strRet.append(sensorId);
+                    strRet.append(",");
+                    strRet.append(eventTime.toString());
                     strRet.append(",");
                     strRet.append(strTemp);
 
@@ -72,7 +79,7 @@ public class MessageGeneratorFile implements MessageGenerator {
             }
         }
 
-        System.out.println("Message to be sent: " + strRet.toString());
+        System.out.println("Message to be sent (thread #" + threadId + "): " + strRet.toString());
 
         return strRet.toString();
     }
@@ -94,7 +101,4 @@ public class MessageGeneratorFile implements MessageGenerator {
         br = new BufferedReader(new FileReader(strFile));
         return br;
     }
-
-
-
 }

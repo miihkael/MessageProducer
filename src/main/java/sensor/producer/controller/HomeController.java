@@ -7,174 +7,274 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.bind.annotation.*;
 import sensor.producer.data.DSessionData;
+import sensor.producer.data.Sensor;
+import sensor.producer.data.SensorForm;
 import sensor.producer.domain.MessageService;
+import sensor.producer.service.MyMessagingService;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.servlet.ServletContext;
+import java.io.*;
 import java.util.Iterator;
 import java.util.Map;
+
+import static sensor.producer.data.DSessionData.maxMessagingCount;
 
 /**
  * Created by mika on 29.5.2016.
  */
-@Controller
+@Controller("homeController")
 @SessionAttributes({"sessionData"})
 public class HomeController {
 
     Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Autowired
+    private ServletContext servletContext;
+
+    @Autowired
     MessageService messageService;
+
+    @Autowired
+    MyMessagingService myMessagingService;
+
+    //@Autowired                            // Enable if localization is desired.
+    //private MessageSource messageSource;
+
+    private volatile DSessionData mainSessionData = null;
+
+
+    // See root.xml for the PostConstruct bean.
+    // This is run after any constructors and sertters, but before anything else.
+    @PostConstruct
+    public void initProducer() throws Exception {
+        logger.debug("initProducer(): CREATE started");
+        /*saveWorkers = new Thread[workerPoolSize];
+        for (int i=0; i < workerPoolSize; i++) {
+            saveWorkers[i] = new Thread(new SaverThread());
+            saveWorkers[i].start();
+        }*/
+
+        //String strContPath = servletContext.getContextPath();
+        //String rootPath = System.getProperty("catalina.home");
+        //System.out.println(rootPath);
+
+        String rootPath = servletContext.getRealPath("/");
+        System.out.println(rootPath);
+
+        mainSessionData = new DSessionData();
+        boolean fRes = createSensors(mainSessionData, rootPath);
+
+        // mainSessionData.setExecutor();     // This calls: xyz = Executors.newFixedThreadPool(maxThreadCount);
+        logger.debug("CREATE finished");
+    }
+
+
+    // This is run just before the class is destroyed.
+    // NOTICE: The application must be close by Exit !!!, not by Stop !!!!
+    @PreDestroy
+    public void cleanProducer() throws Exception {
+        logger.debug("cleanProducer(): DESTROY started");
+        /*for (Thread worker : saveWorkers) {
+            worker.setRunning(false);
+        }
+
+        // Now join with each thread to make sure we give them time to stop gracefully
+        for (Thread worker : saveWorkers) {
+            worker.join();  // May want to use the one that allows a millis for a timeout
+        }*/
+        if (mainSessionData != null) {
+            mainSessionData.Destroy();
+        }
+        /*saveWorkers.shutdown();
+        while (!saveWorkers.isTerminated()) { }*/
+        logger.debug("cleanProducer(): DESTROY finished");
+    }
+
 
     @RequestMapping(value = {"", "/", "/home"}, method = RequestMethod.GET)
     public String home(Model model)
     {
-        if (!model.containsAttribute("sessionData")) {
-            model.addAttribute("sessionData", new DSessionData());
-            model.addAttribute("msgtype", "Integeri");
+        logger.debug("home(GET): STARTED");
+        // Fetch the sensors information from the DSessionData and make a SensorForm
+        // to pass all the sensors at once into the jsp form.
 
-            // TODO: the same for the msgFile also...?
+        SensorForm sensorForm = new SensorForm();
+        /*if (mainSessionData != null) {
+            sensorForm.setSensorsInForm(mainSessionData.getSensors());
+        }
+        model.addAttribute("sensorForm", sensorForm);*/
+
+        if (!model.containsAttribute("sessionData")) {
+            model.addAttribute("sessionData", mainSessionData);
+            sensorForm.setSensorsInForm(mainSessionData.getSensors());
         }
         else {
             DSessionData sesData = (DSessionData)fetchSessionData(model, "sessionData");
             if (sesData != null) {
-                model.addAttribute("msgtype", sesData.getStrMsgType());
+                sensorForm.setSensorsInForm(sesData.getSensors());
             }
         }
+        model.addAttribute("sensorForm", sensorForm);
 
+        logger.debug("home(GET): ENDED");
         return "/home";
     }
 
 
     @RequestMapping(value = {"", "/", "/home"}, method = RequestMethod.POST)
     public String home(Model model,
-                       //@ModelAttribute("sensorID") String strSensorId,
-                       @ModelAttribute("msgtype") String strMsgType,
-                       //@ModelAttribute("msgfile") String strMsgFile )
-                       //@ModelAttribute("msgfile") File msgFile,
-                       @ModelAttribute("sessionData") DSessionData sesData,
-                       BindingResult bindingResult)
+                       //@ModelAttribute("sessionData") DSessionData sesData,
+                       @ModelAttribute("sensorForm") SensorForm sensorForm,
+                       BindingResult bindingResult,
+                       @RequestParam("actionbutton") String strButton )
     {
 
         //String strFullFile = null;
+        boolean fError = false;
+        DSessionData sesData = null;
 
-        if (sesData == null || sesData.getStrSensorId().isEmpty()) {
-            bindingResult.addError(new ObjectError("usererror", "Sensor ID must be given!"));
-            return "/home";
-        }
-        if (strMsgType.isEmpty()) {
-            bindingResult.addError(new ObjectError("usererror", "Message type must be selected!"));
-            return "/home";
+        // Get the localized strings from property-files (according locale): ****************
+        //Locale locale = LocaleContextHolder.getLocale();
+        //String strStartText = messageSource.getMessage("xyz.label.startmessaging", null, locale);
+        //String strReloadText = messageSource.getMessage("xyz.label.reloadmessaging", null, locale);
+        // **********************************************************************************
+        //String strStartText = "start";
+        String strReloadText = "reload";
+
+        // If there is any problems to use 'mainSessionData' directly, you can get
+        // if from session also by calling 'fetchSessionData' method (see below).
+        if (model.containsAttribute("sessionData")) {
+            sesData = (DSessionData)fetchSessionData(model, "sessionData");
         }
         else {
-            sesData.setStrMsgType(strMsgType);
+            sesData = mainSessionData;          // Questionable usage   ???
         }
-        if (sesData.getStrMsgType().equals("Filei")) {
-            if (sesData.getMsgFile() != null) {
-                try {
-                    sesData.setStrMsgFile(sesData.getMsgFile().getCanonicalPath());
 
-                    // Still try to open the file to be sure:
-                    if (!testFile(sesData.getStrMsgFile())) {
-                        bindingResult.addError(new ObjectError("usererror", "Selected file cannot be found or accessed!"));
-                        return "/home";
-                    }
+        if (strButton.equals(strReloadText)) {
+            // User has selected reload for the sensors data:
+            String rootPath = servletContext.getRealPath("/");
+            logger.debug("home(POST): reloading from '" + rootPath + "'!");
+
+            mainSessionData = new DSessionData();
+            createSensors(mainSessionData, rootPath);
+
+            return "redirect:/home";
+        }
+
+        if (sensorForm == null) {
+            bindingResult.addError(new ObjectError("usererror", "No sensor data available."));
+            System.out.println("home(POST): ERROR: Invalid sensor data: Enter valid sensor seeds into 'SensorProducerSensorList.dat'!");
+            fError = true;
+        }
+
+        // Now merge the SensorForm into the mainSessionData:
+        int iThreads = mergeFormToSession(sensorForm);
+        if (iThreads < 1) {
+            bindingResult.addError(new ObjectError("usererror", "No messaging selected."));
+            System.out.println("home(POST): ERROR: No messaging selected: Select at least one sensor to be messaging!");
+            fError = true;
+        }
+        if (iThreads > maxMessagingCount) {
+            bindingResult.addError(new ObjectError("usererror", "Too many messaging selected."));
+            System.out.println("home(POST): ERROR: Too many messaging selected: Drop out selected sensors to maximum of " + maxMessagingCount + "!");
+            fError = true;
+        }
+
+        if (fError) {
+            return "/home";
+        }
+
+        // Validate message file system for all 'FILE' type messagings:
+        for ( Sensor mainSensor : mainSessionData.getSensors() ) {
+            if ( mainSensor.isSelected() && mainSensor.getSensorType() == DSessionData.SensorType.FILE ) {
+                // Check the file validity:
+                if ( !testFile(mainSessionData.getBasePath() + mainSensor.getMessageFile()) ) {
+                    mainSensor.setSelected(false);
+                    iThreads--;
+                    mainSensor.setStrStatus("File not available");
                 }
-                catch (IOException ioe) {
-                    logger.info("File selection failed!");
-                    bindingResult.addError(new ObjectError("usererror", "Selected file cannot be found or accessed!"));
-                    return "/home";
-                }
-            } else {
-                bindingResult.addError(new ObjectError("usererror", "Message file must be selected from server file system!"));
-                return "/home";
             }
+        }
+
+        if (iThreads < 1) {
+            bindingResult.addError(new ObjectError("usererror", "Messaging file opening failed."));
+            System.out.println("home(POST): ERROR: No messaging selected: Failed to open any messaging file!");
+            fError = true;
         }
 
         try {
-            sesData.setMessageService(messageService);
-
-            Producer runnable = new Producer(sesData);
-            Thread thread = new Thread(runnable);
-
-            sesData.setThread(thread);      // Store thread so it is possible to termiante it later on!
-            // Also sets the running flag to true!
-            sesData.setRunnable(runnable);
-
-            thread.start();
-            model.addAttribute("sessionData", sesData);
-
-            try {
-                Thread.sleep(500);
-            }
-            catch (Exception e) {
-
-            }
-            if (!thread.isAlive()) {
-                bindingResult.addError(new ObjectError("usererror", "Problem with msessage sending thread - sending terminated!"));
-                return "/home";
-            }
+           sesData.setMessageService(messageService);
+           myMessagingService.startMessaging(sesData);
         }
         catch (Exception e) {
             //logger.
             return "/home";
         }
-        return "/producing";
+        return "redirect:/producing";
     }
 
 
     @RequestMapping(value={"/producing"}, method = RequestMethod.GET)
-    public String startSending(Model model, @ModelAttribute("sessionData") DSessionData sessionData) {
+    public String startSending(Model model) {
+
+        SensorForm sensorForm = new SensorForm();
+        DSessionData sesData = null;
+
+        if (model.containsAttribute("sessionData")) {
+            sesData = (DSessionData)fetchSessionData(model, "sessionData");
+        }
+        else {
+            sesData = mainSessionData;          // Questionable usage   ???
+        }
+
+        sensorForm.setSensorsInForm(mainSessionData.getActiveSensors());
+        model.addAttribute("sensorForm", sensorForm);
 
         return "/producing";
     }
 
 
     @RequestMapping(value={"/producing"}, method = RequestMethod.POST)
-    public String stopSending(Model model, @ModelAttribute("sessionData") DSessionData sessionData,
-                              SessionStatus sessionStatus) {
+    public String stopSending(Model model) {
 
         // This handles 'Return' button and stops message sending before leaving /producing form.
+        // Usage ModelAttribute above if you want to change something in form, like stopping individual threads...
 
         // TODO: Also implement the browser back button functionality.. or brower closure or page closure/change...?
 
-        if (sessionData != null) {
-            if (sessionData.isfSending()) {
-                Thread thread = sessionData.getThread();
-                if (thread != null) {
-                    Producer runnable = sessionData.getRunnable();
-                    if (runnable != null) {
-                        runnable.Terminate();
-                        sessionData.setfSending(false);
-                        try {
-                            thread.join();
-                        }
-                        catch (InterruptedException ie) {
-                            System.out.println(ie.getMessage());
-                            logger.info("Sending thread closing: Exception!");
-                        }
-                    }
-                }
-            }
-        }
-        //sessionStatus.setComplete();
+        DSessionData sesData = null;
 
-        return "/home";
+        if (model.containsAttribute("sessionData")) {
+            sesData = (DSessionData)fetchSessionData(model, "sessionData");
+        }
+        else {
+            sesData = mainSessionData;          // Questionable usage   ???
+        }
+
+        try {
+            myMessagingService.stopMessaging(sesData);
+        }
+        catch (Exception e) {
+            //logger.
+            return "/home";
+        }
+
+        return "redirect: /home";
     }
 
 
     // =====================================================================================
 
-// ${sessionData.strSensorId}
-    // ${sessionData.msgFile}
-
+    /*
+    This method fetches the sessionData currently stored as session object in
+    model. The desired object name is passed as parameter on 'strAttribString'.
+    E.g. to fetch 'sessionData' (main data set for this application, call:
+    DSessionData sesData = (DSessionData) fetchSessionData(model, "sessionData");
+    */
     private Object fetchSessionData(Model model, String strAttribString) {
         if (model == null || strAttribString.isEmpty()) {
             return null;
@@ -192,7 +292,10 @@ public class HomeController {
         return null;
     }
 
-    // Just to test if file exists and is valid for opening:
+
+    /*
+    This method tests if the given file (as parameter) exists and can be opened.
+    */
     private boolean testFile(String filePath) {
         boolean fRet = false;
         File f = new File(filePath);
@@ -211,4 +314,111 @@ public class HomeController {
         }
         return fRet;
     }
+
+
+    /*
+    This method reads through file 'SensorProducerSensorList.dat' containing list of
+    sensors. Each sensor (one line in the file) is stored in the passed DSessionData
+    object to be used by the application. Parameter 'strRootPath' contains the location
+    of the source file (should be root folder of the application).
+    */
+    private boolean createSensors(DSessionData sessionData, String strRootPath) {
+        // Read sensorid's from the external file into the DSessionData...
+        boolean fRet = true;
+        final String strAppName = "SensorProducer";                 // Name of us!
+        final String strFileName = "SensorProducerSensorList.dat";  // Name of the sensorId file.
+
+        if ( sessionData == null || strRootPath.isEmpty() ) {
+            System.out.println("HomeContorller::createSensors: Invalid parameters passed to create!");
+            return false;
+        }
+
+        int iPosEnd = strRootPath.lastIndexOf(strAppName);
+        String strFilePath = strRootPath.substring(0, iPosEnd + strAppName.length() + 1);
+        String strFullName = strFilePath + strFileName;
+        BufferedReader br = null;
+        boolean fRead = true;
+        StringBuffer strRet = new StringBuffer();
+
+        try {
+            // Clear all existing data:
+            sessionData.deleteActiveSensors();
+            sessionData.deleteSensors();
+
+            sessionData.setBasePath(strFilePath);           // Store for 'FILE' type handling.
+
+            br = new BufferedReader(new FileReader(strFullName));
+            sessionData.deleteSensors();
+
+            while (fRead) {
+                try {
+                    String strLine;
+
+                    if ( (strLine = br.readLine()) != null ) {
+                        sessionData.addSensor(strLine); //  // strLine contains whole base sensor!
+                            //fRet = false;
+                            //fRead = false;      // Stop the creating even if one fails!
+                        //}
+                    }
+                    else {
+                        fRead = false;
+                    }
+                }
+                catch (IOException ioe) {
+                    fRead = false;
+                    fRet = false;
+                    ioe.printStackTrace();
+                }
+            }
+        }
+        catch (IOException ioe) {
+            fRet = false;
+            ioe.printStackTrace();
+        }
+        finally {
+            if (br != null) {
+                try {
+                    br.close();
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+        }
+
+        System.out.println(sessionData.toString());
+        return fRet;
+    }
+
+
+    // Merge user selections and changes from SensorForm object into
+    // main session data object.
+    // If no sensor is selected for messaging, return zero. Otherwise the number of
+    // threads to start.
+    private Integer mergeFormToSession(SensorForm sensorForm) {
+        int iRet = 0;
+
+        if (mainSessionData == null || sensorForm == null || sensorForm.getSensorsInForm().size() == 0) {
+            return iRet;
+        }
+
+        for ( Sensor sensor : sensorForm.getSensorsInForm() ) {
+            if (sensor.isSelected()) {
+                // Find matching sensor in mainSessionData and mark it as selected also:
+                for ( Sensor mainSensor : mainSessionData.getSensors() ) {
+                    if ( mainSensor.getSensorId().equals(sensor.getSensorId())) {
+                        mainSensor.setSelected(true);
+
+                        // Also set the timeout:
+                        mainSensor.setTimeOut(sensor.getTimeOut());
+                        iRet++;
+                        break;  // To the next item in main loop...
+                    }
+                }
+            }
+        }
+
+        return iRet;
+    }
+
 }

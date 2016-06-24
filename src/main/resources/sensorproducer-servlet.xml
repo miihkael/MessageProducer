@@ -15,6 +15,9 @@
     <context:component-scan base-package="sensor.producer.controller" use-default-filters="false">
         <context:include-filter expression="org.springframework.stereotype.Controller" type="annotation"/>
     </context:component-scan>
+    <context:component-scan base-package="sensor.producer.service" use-default-filters="false">
+        <context:include-filter expression="org.springframework.stereotype.Service" type="annotation"/>
+    </context:component-scan>
 
     <bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"/>
 
@@ -25,6 +28,12 @@
         <property name="suffix">
             <value>.jsp</value>
         </property>
+    </bean>
+
+    <!-- Spring PostProcessor annotation bean -->
+    <context:annotation-config></context:annotation-config>
+    <bean id="homeController" class="sensor.producer.controller.HomeController">
+        <!--<property name="message" value="i'm property message" /> -->
     </bean>
 
 </beans>
