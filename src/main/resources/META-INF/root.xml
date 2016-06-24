@@ -16,11 +16,11 @@
             http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms-4.2.xsd
             http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
-
-    <context:component-scan base-package="sensor.producer.controller">
-        <context:exclude-filter expression="org.springframework.stereotype.Controller" type="annotation"/>
+<!--
+    <context:component-scan base-package="sensor.producer.service">
+        <context:exclude-filter expression="org.springframework.stereotype.Service" type="annotation"/>
     </context:component-scan>
-
+-->
     <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver" />
 
     <bean  id="simpleMappingExceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
@@ -62,6 +62,7 @@
     <!-- Activemq connection factory -->
     <bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
         <!-- brokerURL, You may have different IP or port -->
+        <!-- This can be in a different port, but then it must be configured on ActiveMQ as well: the default is 61616! -->
         <constructor-arg index="0" value="tcp://127.0.0.1:61616" />
     </bean>
 
@@ -71,18 +72,15 @@
         <constructor-arg ref="amqConnectionFactory" />
     </bean>
 
-
     <amq:queue name="amqueue" id="amqueue" physicalName="sensorit01" />
-
-
-    <int-jms:outbound-gateway requires-reply="true"  id="jmsOut" request-destination="amqueue" request-channel="outQueue" />
-
-
+    <int-jms:outbound-gateway requires-reply="true" id="jmsOut" request-destination="amqueue" request-channel="outQueue" />
 
     <int:channel id="outQueue" />
-
-
     <int:gateway default-reply-timeout="10000" service-interface="sensor.producer.domain.MessageService" default-request-channel="outQueue">
 
     </int:gateway>
+
+
+
+
 </beans>
