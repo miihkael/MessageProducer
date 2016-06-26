@@ -9,7 +9,6 @@ import java.io.File;
  */
 public class Sensor {
     private String sensorId;        // Sensor id.
-    //private String sensorType;      // Sensor type.
     private DSessionData.SensorType sensorType;
     private Integer timeOut;        // Sending timeout.
 
@@ -24,7 +23,7 @@ public class Sensor {
 
     public Sensor() {
         this.sensorId = "<Not initialised";
-        this.sensorType = DSessionData.SensorType.NONE; //sensorTypes.get(0);
+        this.sensorType = DSessionData.SensorType.NONE;
         this.timeOut = DSessionData.defaultTimeOut;
         this.runnable = null;
         this.thread = null;
@@ -33,10 +32,9 @@ public class Sensor {
         this.strStatus = new StringBuilder();
     }
 
-
     public Sensor(String sensId) {
         this.sensorId = sensId;
-        this.sensorType = DSessionData.SensorType.NONE; //sensorTypes.get(0);
+        this.sensorType = DSessionData.SensorType.NONE;
         this.timeOut = DSessionData.defaultTimeOut;
         this.runnable = null;
         this.thread = null;
