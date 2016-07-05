@@ -59,6 +59,7 @@ public class Producer extends Thread {
                     //logger.info("error in message sending...");
                     try {
                         Thread.sleep(iMsgTimeOutError);
+                        Thread.sleep(this.iMsgTimeOut);
 
                         // TODO: set up user passable sending timeout!
                     }

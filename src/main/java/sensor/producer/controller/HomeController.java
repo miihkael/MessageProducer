@@ -402,11 +402,15 @@ public class HomeController {
             return iRet;
         }
 
-        for ( Sensor sensor : sensorForm.getSensorsInForm() ) {
-            if (sensor.isSelected()) {
-                // Find matching sensor in mainSessionData and mark it as selected also:
-                for ( Sensor mainSensor : mainSessionData.getSensors() ) {
-                    if ( mainSensor.getSensorId().equals(sensor.getSensorId())) {
+        for ( Sensor mainSensor : mainSessionData.getSensors() ) {
+            if (mainSensor.isSelected()) {
+                mainSensor.setSelected(false);
+            }
+
+            // Find matching sensor among sensor list of the form and mark mainSessionData according selection status:
+            for ( Sensor sensor : sensorForm.getSensorsInForm() ) {
+                if (mainSensor.getSensorId().equals(sensor.getSensorId())) {
+                    if (sensor.isSelected()) {
                         mainSensor.setSelected(true);
 
                         // Also set the timeout:
