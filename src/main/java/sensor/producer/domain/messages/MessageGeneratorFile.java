@@ -10,6 +10,9 @@ import java.io.IOException;
 /**
  * Created by mika on 3.6.2016.
  */
+
+// OBSOLETE
+
 public class MessageGeneratorFile implements MessageGenerator {
 
     private String sensorId;

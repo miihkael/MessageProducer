@@ -1,10 +1,10 @@
 # This is comment line. Actual sensor data is following:
 # SensorID,Sensor type,file name of the message data if type is 'FILE'
-Sensori888,INTEGER
-Sensori12345,DECIMAL
-Sensori22222,FILE,testi.pickme
-Sensori33333,INTEGER
-Sensori44444,DECIMAL
-Sensori55555,DECIMAL
-Sensori66666,INTEGER
-Sensori77777,INTEGER
+Sensori888,ACC
+Sensori12345,GPS
+Sensori22222,GYR
+Sensori33333,MAG
+Sensori44444,TMP
+Sensori55555,FLAG
+Sensori66666,BAR
+#Sensori77777,INTEGER

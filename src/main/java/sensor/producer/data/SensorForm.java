@@ -5,6 +5,8 @@ import java.util.List;
 
 /**
  * Created by mika on 17.6.2016.
+ *
+ * This class is used for displaying sensors in .jsp forms.
  */
 public class SensorForm {
     private List<Sensor> sensorsInForm;

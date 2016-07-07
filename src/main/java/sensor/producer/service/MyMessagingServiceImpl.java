@@ -4,10 +4,7 @@ import org.springframework.stereotype.Service;
 import sensor.producer.controller.Producer;
 import sensor.producer.data.DSessionData;
 import sensor.producer.data.Sensor;
-import sensor.producer.domain.messages.MessageGenerator;
-import sensor.producer.domain.messages.MessageGeneratorDecimal;
-import sensor.producer.domain.messages.MessageGeneratorFile;
-import sensor.producer.domain.messages.MessageGeneratorInteger;
+import sensor.producer.domain.messages.*;
 
 import static sensor.producer.data.DSessionData.maxMessagingCount;
 
@@ -27,7 +24,7 @@ public class MyMessagingServiceImpl implements MyMessagingService {
         MessageGenerator newMG = null;
         boolean fCont = false;
 
-        for ( Sensor sensor : sessionData.getSensors() ) {
+        /*for ( Sensor sensor : sessionData.getSensors() ) {
             if ( sessionData.getActiveSensCount() < maxMessagingCount ) {
                 if ( sensor.isSelected() ) {
                     fCont = true;
@@ -74,6 +71,36 @@ public class MyMessagingServiceImpl implements MyMessagingService {
                         }
                     }
                     fCont = true;
+                }
+            }
+        }*/
+
+        for ( Sensor sensor : sessionData.getSensors() ) {
+            if ( sessionData.getActiveSensCount() < maxMessagingCount ) {
+                if ( sensor.isSelected() ) {
+
+                    DSessionData.SENSORDATATYPE sType = sensor.getSensorDataType();
+
+                    newMG = new MessageGeneratorImpl(sType);
+
+                    newMG.setUpMessaging(sensor, iThreadId);
+                    try {
+                        Producer sender = new Producer(sessionData.getMessageService(),
+                                newMG,
+                                sensor.getTimeOut(),
+                                iThreadId);
+                        iThreadId++;
+                        sensor.setThread(sender);
+                        sessionData.addActiveSensor(sensor);    // Add to active sensors -list.
+                        sensor.setStrStatus("Sending...");
+
+                        sender.start();
+                    } catch (Exception e) {
+                        System.out.println("MyMessagingServiceImpl::startMessaging(): Failed to create messaging thread " +
+                                (iThreadId+1) + " " + e.getMessage());
+                        sensor.setStrStatus("Not sending...");
+                    }
+
                 }
             }
         }

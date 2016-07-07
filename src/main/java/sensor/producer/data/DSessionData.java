@@ -43,10 +43,10 @@ public class DSessionData {
     public void setSensors(List<Sensor> sens) {
         this.sensors = sens;
     }
-    public boolean addSensor(String strSensorId) {
+    public boolean addSensor(String strSensorLine) {
         boolean fRet = false;
-        if (!strSensorId.isEmpty()) {
-            Sensor sensor = ParseFromSensorLine(strSensorId);
+        if (!strSensorLine.isEmpty()) {
+            Sensor sensor = ParseFromSensorLine(strSensorLine);
             if (sensor != null) {
                 sensors.add(sensor);
                 fRet = true;
@@ -137,8 +137,8 @@ public class DSessionData {
 
     private Sensor ParseFromSensorLine(String strLine) {
         // Sensor line can be like:
-        // 'Sensori22222,File,testi.pickme'
-        // where fields are (separated by comma): sensorId or ApiKey,sensor type,file name (for type 'FILE')
+        // 'Sensori22222,TMP'
+        // where fields are (separated by comma): sensorId or ApiKey,SENSORDATATYPE (,file name (for type 'FILE'))
 
         Sensor sensor = null;
         int iCh = ',';          // Delimiter.
@@ -169,9 +169,9 @@ public class DSessionData {
                 case 0:     // sensorId
                     sensor = new Sensor(strItem.toString());
                     break;
-                case 1:     // sensor type
+                case 1:     // sensor data type
                     if (sensor != null) {
-                        sensor.setSensorType(SensorType.valueOf(strItem.toString()));
+                        sensor.setSensorDataType(SENSORDATATYPE.valueOf(strItem.toString()));
                     }
                     else {
                         fCont = false;
@@ -202,12 +202,35 @@ public class DSessionData {
 
     // =====================================================================================
 
-    public enum SensorType {
+    /*public enum SensorType {
         NONE,
         INTEGER,
         DECIMAL,
         FILE,
         BOOLEAN
+    }*/
+
+    public enum SENSORDATATYPE {
+        NONE,       // Unspecified
+        ACC,        // Accleration, 1...-1 (x, y, z)
+        ALT,        // Altitude, m
+        BAR,        // Barometer, hPa
+        FLAG,       // on/off, boolean
+        GPS,        // gps: lat, lon, alt
+        GYR,        // Gyroscope, 1...-1 (x,y,z)
+        HUM,        // Humidity, %
+        LUX,        // Lightning, lux
+        MAG,        //              , 1...-1 (x,y,z)
+        TIMESTAMP,  // Timestap, double
+        TMP        // Temperature, Celcius
+    }
+
+    public enum SENSORDATATYPE_SUB {
+        LAT,        // Latitude,    Signed gegrees format; DDD,dddd: 90...-90
+        LON,        // Longitude,   Signed gegrees format; DDD,dddd: 180...-180
+        X,          // x-axis
+        Y,          // y-axis
+        Z           // z-axis
     }
 
     public static final int defaultTimeOut = 500;

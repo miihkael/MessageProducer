@@ -42,7 +42,7 @@
         <tr>
             <th>No.</th>
             <th>SensorId/ApiKey</th>
-            <th>Sensor Type</th>
+            <th>Sensor Data Type</th>
             <th>Message File</th>
             <th>Timeout (ms)</th>
             <th>Status</th>
@@ -54,7 +54,7 @@
             <tr>
                 <td aling="center">${status.count}</td>
                 <td>${sensor.sensorId}<input type="hidden" name="sensorsInForm[${status.index}].sensorId" value="${sensor.sensorId}"/></td>
-                <td>${sensor.sensorType}<input type="hidden" name="sensorsInForm[${status.index}].sensorType" value="${sensor.sensorType}"/></td>
+                <td>${sensor.sensorDataType}<input type="hidden" name="sensorsInForm[${status.index}].sensorType" value="${sensor.sensorDataType}"/></td>
                 <td>${sensor.messageFile}<input type="hidden" name="sensorsInForm[${status.index}].messageFile" value="${sensor.messageFile}"/></td>
                 <td>${sensor.timeOut}<input type="hidden" name="sensorsInForm[${status.index}].timeOut" value="${sensor.timeOut}"/></td>
                 <td>${sensor.strStatus}<input type="hidden" name="sensorsInForm[${status.index}].strStatus" value="${sensor.strStatus}"/></td>

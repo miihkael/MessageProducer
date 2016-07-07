@@ -9,7 +9,8 @@ import java.io.File;
  */
 public class Sensor {
     private String sensorId;        // Sensor id.
-    private DSessionData.SensorType sensorType;
+    //private DSessionData.SensorType sensorType;
+    private DSessionData.SENSORDATATYPE sensorDataType;
     private Integer timeOut;        // Sending timeout.
 
     private Producer runnable;      // Needed for thread closing.
@@ -23,7 +24,7 @@ public class Sensor {
 
     public Sensor() {
         this.sensorId = "<Not initialised";
-        this.sensorType = DSessionData.SensorType.NONE;
+        this.sensorDataType = DSessionData.SENSORDATATYPE.NONE;
         this.timeOut = DSessionData.defaultTimeOut;
         this.runnable = null;
         this.thread = null;
@@ -34,7 +35,7 @@ public class Sensor {
 
     public Sensor(String sensId) {
         this.sensorId = sensId;
-        this.sensorType = DSessionData.SensorType.NONE;
+        this.sensorDataType = DSessionData.SENSORDATATYPE.NONE;
         this.timeOut = DSessionData.defaultTimeOut;
         this.runnable = null;
         this.thread = null;
@@ -50,11 +51,19 @@ public class Sensor {
         this.sensorId = sensorId;
     }
 
-    public DSessionData.SensorType getSensorType() {
+    /*public DSessionData.SensorType getSensorType() {
         return sensorType;
     }
     public void setSensorType(DSessionData.SensorType sensorType) {
         this.sensorType = sensorType;
+    }
+    */
+
+    public DSessionData.SENSORDATATYPE getSensorDataType() {
+        return sensorDataType;
+    }
+    public void setSensorDataType(DSessionData.SENSORDATATYPE sensorDataType) {
+        this.sensorDataType = sensorDataType;
     }
 
     public Integer getTimeOut() {

@@ -6,6 +6,10 @@ import sensor.producer.data.Sensor;
 /**
  * Created by mika on 3.6.2016.
  */
+
+// OBSOLETE
+
+
 public class MessageGeneratorDecimal implements MessageGenerator {
     private String sensorId;
     private int threadId;

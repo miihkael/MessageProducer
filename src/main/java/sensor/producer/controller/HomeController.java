@@ -120,6 +120,32 @@ public class HomeController {
         }
         model.addAttribute("sensorForm", sensorForm);
 
+        /*
+        // Testing pojo:
+        MessagePojo mess = new MessagePojo("Sensori12345", ACC);
+        System.out.println("MessagePojo directly from string: " + mess.toString());
+
+        //StringWriter stringer = new StringWriter();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(new StringWriter(), mess);    // Create object mapper.
+
+            // Read back from Objectmapper:
+            ObjectMapper submapper = new ObjectMapper();
+            Map<String, Double> map = new HashMap<String, Double>();
+            // convert JSON string to Map
+            map = submapper.readValue(mess.getData(), new TypeReference<Map<String, String>>(){});
+
+            System.out.println("MessagePojo from ObjectMapper (from getData()): " + map);   // This is better...
+            // This will show subdata incorrectly if it contain json string:
+            System.out.println("MessagePojo from ObjectMapper (as string): " + mapper.writeValueAsString(mess));
+        }
+        catch (IOException ioe) {
+            System.out.println("MessagePojo to ObjectMapper failed: " + ioe.getMessage());
+        }
+        // Testing pojo ends.
+        */
+
         logger.debug("home(GET): ENDED");
         return "/home";
     }
@@ -189,7 +215,7 @@ public class HomeController {
         }
 
         // Validate message file system for all 'FILE' type messagings:
-        for ( Sensor mainSensor : mainSessionData.getSensors() ) {
+        /*for ( Sensor mainSensor : mainSessionData.getSensors() ) {
             if ( mainSensor.isSelected() && mainSensor.getSensorType() == DSessionData.SensorType.FILE ) {
                 // Check the file validity:
                 if ( !testFile(mainSessionData.getBasePath() + mainSensor.getMessageFile()) ) {
@@ -204,7 +230,7 @@ public class HomeController {
             bindingResult.addError(new ObjectError("usererror", "Messaging file opening failed."));
             System.out.println("home(POST): ERROR: No messaging selected: Failed to open any messaging file!");
             fError = true;
-        }
+        }*/
 
         try {
            sesData.setMessageService(messageService);
