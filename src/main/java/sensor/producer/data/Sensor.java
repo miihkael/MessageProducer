@@ -51,14 +51,6 @@ public class Sensor {
         this.sensorId = sensorId;
     }
 
-    /*public DSessionData.SensorType getSensorType() {
-        return sensorType;
-    }
-    public void setSensorType(DSessionData.SensorType sensorType) {
-        this.sensorType = sensorType;
-    }
-    */
-
     public DSessionData.SENSORDATATYPE getSensorDataType() {
         return sensorDataType;
     }

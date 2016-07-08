@@ -52,15 +52,6 @@ public class HomeController {
     @PostConstruct
     public void initProducer() throws Exception {
         logger.debug("initProducer(): CREATE started");
-        /*saveWorkers = new Thread[workerPoolSize];
-        for (int i=0; i < workerPoolSize; i++) {
-            saveWorkers[i] = new Thread(new SaverThread());
-            saveWorkers[i].start();
-        }*/
-
-        //String strContPath = servletContext.getContextPath();
-        //String rootPath = System.getProperty("catalina.home");
-        //System.out.println(rootPath);
 
         String rootPath = servletContext.getRealPath("/");
         System.out.println(rootPath);
@@ -172,7 +163,7 @@ public class HomeController {
         String strReloadText = "reload";
 
         // If there is any problems to use 'mainSessionData' directly, you can get
-        // if from session also by calling 'fetchSessionData' method (see below).
+        // it from session also by calling 'fetchSessionData' method (see below).
         if (model.containsAttribute("sessionData")) {
             sesData = (DSessionData)fetchSessionData(model, "sessionData");
         }
@@ -187,8 +178,9 @@ public class HomeController {
 
             mainSessionData = new DSessionData();
             createSensors(mainSessionData, rootPath);
+            //model.addAttribute("sessionData", mainSessionData);
 
-            return "redirect:/home";
+            return "/home";
         }
 
         if (sensorForm == null) {
@@ -213,24 +205,6 @@ public class HomeController {
         if (fError) {
             return "/home";
         }
-
-        // Validate message file system for all 'FILE' type messagings:
-        /*for ( Sensor mainSensor : mainSessionData.getSensors() ) {
-            if ( mainSensor.isSelected() && mainSensor.getSensorType() == DSessionData.SensorType.FILE ) {
-                // Check the file validity:
-                if ( !testFile(mainSessionData.getBasePath() + mainSensor.getMessageFile()) ) {
-                    mainSensor.setSelected(false);
-                    iThreads--;
-                    mainSensor.setStrStatus("File not available");
-                }
-            }
-        }
-
-        if (iThreads < 1) {
-            bindingResult.addError(new ObjectError("usererror", "Messaging file opening failed."));
-            System.out.println("home(POST): ERROR: No messaging selected: Failed to open any messaging file!");
-            fError = true;
-        }*/
 
         try {
            sesData.setMessageService(messageService);

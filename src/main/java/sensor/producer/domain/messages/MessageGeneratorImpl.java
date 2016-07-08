@@ -7,6 +7,8 @@ import sensor.producer.data.Sensor;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mika on 3.6.2016.
@@ -29,19 +31,20 @@ public class MessageGeneratorImpl implements MessageGenerator {
 
     private String sensorId;
     private int threadId;
-    private DSessionData.SENSORDATATYPE sensDType;
+    private List<DSessionData.SENSORDATATYPE> sensDataTypes;
 
-    public MessageGeneratorImpl(DSessionData.SENSORDATATYPE sType) {
-        sensDType = sType;
+    public MessageGeneratorImpl() {
+        sensDataTypes = new ArrayList<>();
     }
 
     @Override
-    public boolean setUpMessaging(Sensor sensor, Integer iThreadNbr) {
+    public Boolean setUpMessaging(Sensor sensor, List<DSessionData.SENSORDATATYPE> dataTypes, Integer iThreadNbr) {
         if (sensor == null) {
             return false;
         }
 
         this.sensorId = sensor.getSensorId();
+        this.sensDataTypes = dataTypes;
         this.threadId = iThreadNbr;
         return true;
     }
@@ -49,15 +52,18 @@ public class MessageGeneratorImpl implements MessageGenerator {
     @Override
     public String getNextMessage() {
 
-        MessagePojo mess = new MessagePojo(sensorId, sensDType);
+        // 1. Create new instance of MessagePojo for json creation.
+        // 2. Create StringWriter to hold the json by...
+        // 3. ... new ObjectMapper: fill json-string from MessagePojo.
+
+        //MessagePojo mess = new MessagePojo(sensorId, sensDType);
+        MessagePojo mess = new MessagePojo(sensorId, sensDataTypes);
         StringWriter sResult = new StringWriter();
 
         if (mess != null) {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 mapper.writeValue(sResult, mess);
-
-
                 //System.out.println("Mapper toString: " + mapper.writeValueAsString(mess));
             }
             catch (IOException ioe) {
@@ -65,13 +71,12 @@ public class MessageGeneratorImpl implements MessageGenerator {
             }
         }
 
-
         System.out.println("Message to be sent (thread #" + threadId + "): " + sResult.toString());
         return sResult.toString();
     }
 
     @Override
-    public boolean closeMessaging() {
+    public Boolean closeMessaging() {
         // Nothing to do...
         return true;
     }

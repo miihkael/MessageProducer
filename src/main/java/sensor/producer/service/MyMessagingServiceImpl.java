@@ -4,7 +4,11 @@ import org.springframework.stereotype.Service;
 import sensor.producer.controller.Producer;
 import sensor.producer.data.DSessionData;
 import sensor.producer.data.Sensor;
-import sensor.producer.domain.messages.*;
+import sensor.producer.domain.messages.MessageGenerator;
+import sensor.producer.domain.messages.MessageGeneratorImpl;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static sensor.producer.data.DSessionData.maxMessagingCount;
 
@@ -22,68 +26,17 @@ public class MyMessagingServiceImpl implements MyMessagingService {
         int iRet = 0;
         int iThreadId = 1;
         MessageGenerator newMG = null;
-        boolean fCont = false;
-
-        /*for ( Sensor sensor : sessionData.getSensors() ) {
-            if ( sessionData.getActiveSensCount() < maxMessagingCount ) {
-                if ( sensor.isSelected() ) {
-                    fCont = true;
-                    switch (sensor.getSensorType()) {
-                        case INTEGER:
-                            newMG = new MessageGeneratorInteger();
-                            newMG.setUpMessaging(sensor, iThreadId);
-                            fCont = true;
-                            break;
-                        case DECIMAL:
-                            newMG = new MessageGeneratorDecimal();
-                            newMG.setUpMessaging(sensor, iThreadId);
-                            break;
-                        case FILE:
-                            newMG = new MessageGeneratorFile();
-                            newMG.setUpMessaging(sensor, iThreadId);
-                            fCont = true;
-                            break;
-                        case BOOLEAN:
-                            System.out.println("MyMessagingServiceImpl::startMessaging(): BOOLEAN-type not implemented!");
-                            fCont = false;
-                            break;
-                        default:
-                            fCont = false;
-                            break;
-                    }
-
-                    if (fCont) {
-                        try {
-                            Producer sender = new Producer(sessionData.getMessageService(),
-                                                            newMG,
-                                                            sensor.getTimeOut(),
-                                                            iThreadId);
-                            iThreadId++;
-                            sensor.setThread(sender);
-                            sessionData.addActiveSensor(sensor);
-                            sensor.setStrStatus("Sending...");
-
-                            sender.start();
-                        } catch (Exception e) {
-                            System.out.println("MyMessagingServiceImpl::startMessaging(): Failed to create messaging thread " +
-                                    (iThreadId+1) + " " + e.getMessage());
-                            sensor.setStrStatus("Not sending...");
-                        }
-                    }
-                    fCont = true;
-                }
-            }
-        }*/
 
         for ( Sensor sensor : sessionData.getSensors() ) {
             if ( sessionData.getActiveSensCount() < maxMessagingCount ) {
                 if ( sensor.isSelected() ) {
 
-                    DSessionData.SENSORDATATYPE sType = sensor.getSensorDataType();
+                    List<DSessionData.SENSORDATATYPE> sTypes = new ArrayList<DSessionData.SENSORDATATYPE>();
+                    sTypes.add(sensor.getSensorDataType());
 
-                    newMG = new MessageGeneratorImpl(sType);
+                    newMG = new MessageGeneratorImpl();
+                    newMG.setUpMessaging(sensor, sTypes, iThreadId);
 
-                    newMG.setUpMessaging(sensor, iThreadId);
                     try {
                         Producer sender = new Producer(sessionData.getMessageService(),
                                 newMG,
@@ -100,7 +53,6 @@ public class MyMessagingServiceImpl implements MyMessagingService {
                                 (iThreadId+1) + " " + e.getMessage());
                         sensor.setStrStatus("Not sending...");
                     }
-
                 }
             }
         }

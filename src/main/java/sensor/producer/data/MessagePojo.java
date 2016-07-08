@@ -2,14 +2,16 @@ package sensor.producer.data;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by mika on 7.7.2016.
  *
  * Class for sensor message json building.
  *
- * Notice that the actual sensor data is stored as object, so that the main json parsing
+ * Notice that the actual sensor data is stored as object(s), so that the main json parsing
  * is able to create that correctly.
  *
  * Instance(s) of this class is created by MessageGeneratorImpl, and called repeatedly by
@@ -17,27 +19,19 @@ import java.util.Date;
  *
  */
 public class MessagePojo {
-    private String id;
+    private String token;
     private long timestamp;
-    private DSessionData.SENSORDATATYPE datatype;
-    private Object data;
+    private List<Object> data;
 
-    // Sub-objects:
-    private SubXYZPojo subXYZPojo;
-
-    public MessagePojo(String id, DSessionData.SENSORDATATYPE datatype ) {
-        this.id = id;
-        this.datatype = datatype;
-
+    public MessagePojo(String token, List<DSessionData.SENSORDATATYPE> datatypes ) {
+        this.token = token;
         this.timestamp = (new Date()).getTime();
-        parseDataString();
+        this.data = new ArrayList<>();
+        parseDataString(datatypes);
     }
 
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
+    public String getToken() {
+        return token;
     }
 
     public long getTimestamp() {
@@ -47,107 +41,152 @@ public class MessagePojo {
         this.timestamp = timestamp;
     }
 
-    public DSessionData.SENSORDATATYPE getDatatype() {
-        return datatype;
-    }
-    public void setDatatype(DSessionData.SENSORDATATYPE datatype) {
-        this.datatype = datatype;
-    }
-
-    public Object getData() {
+    public List<Object> getData() {
         return data;
     }
-    public void setData(Object data) {
+    public void setData(List<Object> data) {
         this.data = data;
     }
 
     @Override
     public String toString() {
-        return "MessagePojo{" +
+        return "not implemented";
+        /*return "MessagePojo{" +
                 "\"id\":\"" + id + "\"" +
                 ",\"timestamp\":" + timestamp +
                 ",\"datatype\":\"" + datatype.toString().toLowerCase() + "\"" +
                 ",\"data\":" + data +
-                '}';
+                '}';*/
+
+        // {"token": "adsfdsafdsf",
+        // "data": [{"datatype": "ACC","data": {"x": 0.4. "y": 0.3, "z": 0.3}}, {"datatype": "HUM", "data": 20}]}
     }
 
     // =======================================================000
-    private void parseDataString() {
-
+    private void parseDataString(List<DSessionData.SENSORDATATYPE> datatypes) {
+        // For most cases our sensors only have one data type present at once.
+        // But we always store data into the data-array to cover multi type cases also.
 
         StringBuilder sRet = new StringBuilder();
         DecimalFormat df = new DecimalFormat("#.###");
         double lVal = 0;
         int iLow = 0;
         int iHigh =  0;
+        boolean fStore = false;
 
-        switch (datatype) {
-            case ACC:
-            case GYR:
-            case MAG:
-                this.data = (SubXYZPojo) new SubXYZPojo();
-                break;
-            case BAR:
-                iLow = 920;
-                iHigh = 1080;
-                lVal = (Math.random() * (iHigh - iLow)) + iLow;
-                df.applyPattern("####");
-                df.setRoundingMode(RoundingMode.DOWN);
-                sRet.append(df.format(lVal));
+        for (DSessionData.SENSORDATATYPE dType: datatypes ) {
+            DataPojo dataPojo = new DataPojo(dType);
+            fStore = false;
 
-                this.data = new Integer(Integer.valueOf(sRet.toString()));
-                break;
-            case FLAG:
-                lVal = Math.random();
-                if (lVal < 0.5) {
-                    sRet.append("false");
-                }
-                else {
-                    sRet.append("true");
-                }
-                this.data = new Boolean(Boolean.valueOf(sRet.toString()));
-                break;
-            case GPS:
-                this.data = (SubGPSPojo) new SubGPSPojo();
-                break;
-            case HUM:
-                iLow = 0;
-                iHigh = 100;
-                lVal = Math.random() * (iHigh - iLow);
-                df.applyPattern("###");
-                df.setRoundingMode(RoundingMode.DOWN);
+            switch (dType) {
+                case ACC:
+                case GYR:
+                case MAG:
+                    dataPojo.setValue(new SubXYZPojo());
+                    fStore = true;
+                    break;
+                case BAR:
+                    iLow = 920;
+                    iHigh = 1080;
+                    lVal = (Math.random() * (iHigh - iLow)) + iLow;
+                    df.applyPattern("####");
+                    df.setRoundingMode(RoundingMode.DOWN);
+                    sRet.append(df.format(lVal));
 
-                sRet.append(df.format(lVal));
-                this.data = new Integer(Integer.valueOf(sRet.toString()));
-                break;
-            case LUX:
-                iLow = 0;
-                iHigh = 100000;
-                lVal = Math.random() * (iHigh - iLow);
-                df.applyPattern("######.####");
-                df.setRoundingMode(RoundingMode.DOWN);
+                    dataPojo.setValue( new Integer(Integer.valueOf(sRet.toString())) );
+                    fStore = true;
+                    break;
+                case FLAG:
+                    lVal = Math.random();
+                    if (lVal < 0.5) {
+                        sRet.append("false");
+                    }
+                    else {
+                        sRet.append("true");
+                    }
+                    dataPojo.setValue( new Boolean(Boolean.valueOf(sRet.toString())) );
+                    fStore = true;
+                    break;
+                case GPS:
+                    dataPojo.setValue( new SubGPSPojo() );
+                    fStore = true;
+                    break;
+                case HUM:
+                    iLow = 0;
+                    iHigh = 100;
+                    lVal = Math.random() * (iHigh - iLow);
+                    df.applyPattern("###");
+                    df.setRoundingMode(RoundingMode.DOWN);
 
-                sRet.append(df.format(lVal));
-                this.data = new Double(Double.valueOf(sRet.toString()));
-                break;
-            case TMP:
-                iLow = -60;
-                iHigh = 180;
-                lVal = (Math.random() * (iHigh - iLow)) + iLow;
-                df.applyPattern("###.##");
-                df.setRoundingMode(RoundingMode.DOWN);
+                    sRet.append(df.format(lVal));
+                    dataPojo.setValue( new Integer(Integer.valueOf(sRet.toString())) );
+                    fStore = true;
+                    break;
+                case LUX:
+                    iLow = 0;
+                    iHigh = 100000;
+                    lVal = Math.random() * (iHigh - iLow);
+                    df.applyPattern("######.####");
+                    df.setRoundingMode(RoundingMode.DOWN);
 
-                sRet.append(df.format(lVal));
-                this.data = new Double(Double.valueOf(sRet.toString()));
-                break;
-            default:
-                this.data = null;
-                break;
+                    sRet.append(df.format(lVal));
+                    dataPojo.setValue( new Double(Double.valueOf(sRet.toString())) );
+                    fStore = true;
+                    break;
+                case TMP:
+                    iLow = -60;
+                    iHigh = 180;
+                    lVal = (Math.random() * (iHigh - iLow)) + iLow;
+                    df.applyPattern("###.##");
+                    df.setRoundingMode(RoundingMode.DOWN);
+
+                    sRet.append(df.format(lVal));
+                    dataPojo.setValue( new Double(Double.valueOf(sRet.toString())) );
+                    fStore = true;
+                    break;
+            }
+            if (fStore) {
+                data.add(dataPojo);
+            }
         }
     }
 
 
-    // Classes for subdata items:
+    /**
+     * Class for storing data part of the message.
+     *
+     * Data can be set of multiple values (e.g. ACC and GPS types) or single value of a
+     * basic data type. In any case data is stored as Object.
+     *
+     */
+    class DataPojo {
+        private DSessionData.SENSORDATATYPE datatype;
+        private Object value;
+
+        public DataPojo(DSessionData.SENSORDATATYPE dtype) {
+            this.datatype = dtype;
+        }
+
+        public DSessionData.SENSORDATATYPE getDatatype() {
+            return datatype;
+        }
+        public void setDatatype(DSessionData.SENSORDATATYPE datatype) {
+            this.datatype = datatype;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+        public void setValue(Object value) {
+            this.value = value;
+        }
+    }
+
+
+    /**
+     * Class for data having three axis.
+     *
+     */
     class SubXYZPojo {
         private Double x;
         private Double y;
@@ -182,7 +221,10 @@ public class MessagePojo {
     }
 
 
-
+    /**
+     * Class for GPS-data having latitude and longitude members.
+     *
+     */
     class SubGPSPojo {
         private double lat;
         private double lon;
