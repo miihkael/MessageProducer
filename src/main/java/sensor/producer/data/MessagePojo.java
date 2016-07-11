@@ -21,7 +21,7 @@ import java.util.List;
 public class MessagePojo {
     private String token;
     private long timestamp;
-    private List<Object> data;
+    private List<DataPojo> data;
 
     public MessagePojo(String token, List<DSessionData.SENSORDATATYPE> datatypes ) {
         this.token = token;
@@ -41,23 +41,31 @@ public class MessagePojo {
         this.timestamp = timestamp;
     }
 
-    public List<Object> getData() {
+    public List<DataPojo> getData() {
         return data;
     }
-    public void setData(List<Object> data) {
+    public void setData(List<DataPojo> data) {
         this.data = data;
     }
 
     @Override
     public String toString() {
-        return "not implemented";
-        /*return "MessagePojo{" +
-                "\"id\":\"" + id + "\"" +
+        StringBuilder sRet = new StringBuilder();
+        sRet.append(
+                "MessagePojo{" +
+                "\"token\":\"" + token + "\"" +
                 ",\"timestamp\":" + timestamp +
-                ",\"datatype\":\"" + datatype.toString().toLowerCase() + "\"" +
-                ",\"data\":" + data +
-                '}';*/
+                ",\"data\":["
+        );
+        for (DataPojo currData : data) {
+            sRet.append(currData.toString());
 
+        }
+        sRet.append("]}");
+
+        return sRet.toString();
+
+        // Esample:
         // {"token": "adsfdsafdsf",
         // "data": [{"datatype": "ACC","data": {"x": 0.4. "y": 0.3, "z": 0.3}}, {"datatype": "HUM", "data": 20}]}
     }
@@ -180,6 +188,12 @@ public class MessagePojo {
         public void setValue(Object value) {
             this.value = value;
         }
+
+        @Override
+        public String toString() {
+            return "{\"datatype\":\"" + datatype.toString() + "\"," +
+                    "\"value\":" + value.toString() + "}";
+        }
     }
 
 
@@ -218,6 +232,13 @@ public class MessagePojo {
             String sRet = df.format(z);
             return new Double(Double.valueOf(sRet.toString()));
         }
+
+        @Override
+        public String toString() {
+            return "{\"x\":" + df.format(x) + "," +
+                    "\"y\":" + df.format(y) + "," +
+                    "\"z\":" + df.format(z) + "}";
+        }
     }
 
 
@@ -249,6 +270,12 @@ public class MessagePojo {
         public double getLon() {
             String sRet = df.format(lon);
             return new Double(Double.valueOf(sRet.toString()));
+        }
+
+        @Override
+        public String toString() {
+            return "{\"lat\":" + df.format(lat) + "," +
+                    "\"lon\":" + df.format(lon) + "}";
         }
     }
 }

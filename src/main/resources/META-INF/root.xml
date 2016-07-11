@@ -72,15 +72,22 @@
         <constructor-arg ref="amqConnectionFactory" />
     </bean>
 
-    <amq:queue name="amqueue" id="amqueue" physicalName="sensorit01" />
-    <int-jms:outbound-gateway requires-reply="true" id="jmsOut" request-destination="amqueue" request-channel="outQueue" />
+    <!--  This would create an embedded ActiveMQ Broker.
+          However, this must not be made if messaging target has already done it.
+          We are client just using this connection !! -->
+    <!-- <amq:broker useJmx="false" persistent="false">
+        <amq:transportConnectors>
+            <amq:transportConnector uri="tcp://127.0.0.1:61616" />
+        </amq:transportConnectors>
+    </amq:broker> -->
+
+    <amq:queue name="amqueue" physicalName="xQ" />
+
+    <int-jms:outbound-gateway request-channel="outQueue" request-destination-name="xQ" id="jmsOut" />
 
     <int:channel id="outQueue" />
     <int:gateway default-reply-timeout="10000" service-interface="sensor.producer.domain.MessageService" default-request-channel="outQueue">
 
     </int:gateway>
-
-
-
 
 </beans>
