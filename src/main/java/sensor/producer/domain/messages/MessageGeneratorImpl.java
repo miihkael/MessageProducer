@@ -71,9 +71,9 @@ public class MessageGeneratorImpl implements MessageGenerator {
             }
         }
 
-        System.out.println("Message to be sent (thread #" + threadId + "): " + sResult.toString());
+        //System.out.println("Message to be sent (thread #" + threadId + "): " + sResult.toString());
 
-        System.out.println("Data through toString: " + mess.toString());
+        //System.out.println("Data through toString: " + mess.toString());
 
 
         return sResult.toString();

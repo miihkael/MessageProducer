@@ -65,7 +65,7 @@ public class MessagePojo {
 
         return sRet.toString();
 
-        // Esample:
+        // Example:
         // {"token": "adsfdsafdsf",
         // "data": [{"datatype": "ACC","data": {"x": 0.4. "y": 0.3, "z": 0.3}}, {"datatype": "HUM", "data": 20}]}
     }
@@ -91,6 +91,17 @@ public class MessagePojo {
                 case GYR:
                 case MAG:
                     dataPojo.setValue(new SubXYZPojo());
+                    fStore = true;
+                    break;
+                case ALT:
+                    iLow = -14000;
+                    iHigh = 50000;
+                    lVal = (Math.random() * (iHigh - iLow)) + iLow;
+                    df.applyPattern("#####.##");
+                    df.setRoundingMode(RoundingMode.DOWN);
+                    sRet.append(df.format(lVal));
+
+                    dataPojo.setValue( new Double(Double.valueOf(sRet.toString())) );
                     fStore = true;
                     break;
                 case BAR:
@@ -202,42 +213,42 @@ public class MessagePojo {
      *
      */
     class SubXYZPojo {
-        private Double x;
-        private Double y;
-        private Double z;
+        private Double X;
+        private Double Y;
+        private Double Z;
         private final double lHigh = 1.0;
         private final double lLow = -1.0;
         DecimalFormat df;
 
         public SubXYZPojo() {
-            this.x = (Math.random() * (lHigh - lLow)) + lLow;
-            this.y = (Math.random() * (lHigh - lLow)) + lLow;
-            this.z = (Math.random() * (lHigh - lLow)) + lLow;
+            this.X = (Math.random() * (lHigh - lLow)) + lLow;
+            this.Y = (Math.random() * (lHigh - lLow)) + lLow;
+            this.Z = (Math.random() * (lHigh - lLow)) + lLow;
 
             df = new DecimalFormat("#.###");
             df.setRoundingMode(RoundingMode.DOWN);
         }
 
         public Double getX() {
-            String sRet = df.format(x);
+            String sRet = df.format(X);
             return new Double(Double.valueOf(sRet.toString()));
         }
 
         public Double getY() {
-            String sRet = df.format(y);
+            String sRet = df.format(Y);
             return new Double(Double.valueOf(sRet.toString()));
         }
 
         public Double getZ() {
-            String sRet = df.format(z);
+            String sRet = df.format(Z);
             return new Double(Double.valueOf(sRet.toString()));
         }
 
         @Override
         public String toString() {
-            return "{\"x\":" + df.format(x) + "," +
-                    "\"y\":" + df.format(y) + "," +
-                    "\"z\":" + df.format(z) + "}";
+            return "{\"X\":" + df.format(X) + "," +
+                    "\"Y\":" + df.format(Y) + "," +
+                    "\"Z\":" + df.format(Z) + "}";
         }
     }
 
@@ -247,8 +258,8 @@ public class MessagePojo {
      *
      */
     class SubGPSPojo {
-        private double lat;
-        private double lon;
+        private double LAT;
+        private double LON;
         private final double lLatLow = -90.0;
         private final double lLatHigh = 90.0;
         private final double lLongLow = -180.0;
@@ -256,26 +267,26 @@ public class MessagePojo {
         private DecimalFormat df;
 
         public SubGPSPojo() {
-            lat = (Math.random() * (lLatHigh - lLatLow)) + lLatLow;
-            lon = (Math.random() * (lLongHigh - lLongLow)) + lLongLow;
+            LAT = (Math.random() * (lLatHigh - lLatLow)) + lLatLow;
+            LON = (Math.random() * (lLongHigh - lLongLow)) + lLongLow;
             df = new DecimalFormat("###.####");
             df.setRoundingMode(RoundingMode.DOWN);
         }
 
-        public double getLat() {
-            String sRet = df.format(lat);
+        public double getLAT() {
+            String sRet = df.format(LAT);
             return new Double(Double.valueOf(sRet.toString()));
         }
 
-        public double getLon() {
-            String sRet = df.format(lon);
+        public double getLON() {
+            String sRet = df.format(LON);
             return new Double(Double.valueOf(sRet.toString()));
         }
 
         @Override
         public String toString() {
-            return "{\"lat\":" + df.format(lat) + "," +
-                    "\"lon\":" + df.format(lon) + "}";
+            return "{\"LAT\":" + df.format(LAT) + "," +
+                    "\"LON\":" + df.format(LON) + "}";
         }
     }
 }
