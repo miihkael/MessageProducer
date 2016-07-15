@@ -19,19 +19,19 @@ import java.util.List;
  *
  */
 public class MessagePojo {
-    private String token;
+    private String apikey;
     private long timestamp;
     private List<DataPojo> data;
 
     public MessagePojo(String token, List<DSessionData.SENSORDATATYPE> datatypes ) {
-        this.token = token;
+        this.apikey = token;
         this.timestamp = (new Date()).getTime();
         this.data = new ArrayList<>();
         parseDataString(datatypes);
     }
 
-    public String getToken() {
-        return token;
+    public String getApikey() {
+        return apikey;
     }
 
     public long getTimestamp() {
@@ -53,7 +53,7 @@ public class MessagePojo {
         StringBuilder sRet = new StringBuilder();
         sRet.append(
                 "MessagePojo{" +
-                "\"token\":\"" + token + "\"" +
+                "\"token\":\"" + apikey + "\"" +
                 ",\"timestamp\":" + timestamp +
                 ",\"data\":["
         );

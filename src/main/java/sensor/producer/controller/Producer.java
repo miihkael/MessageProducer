@@ -47,7 +47,7 @@ public class Producer extends Thread {
                     if (!strMessage.isEmpty()) {
                         String reply = messageService.send(strMessage);
                         System.out.println(reply);
-                        //logger.info("Reply: " + reply);
+                        //System.out.println("Message: " + strMessage);
                     }
                     else {
                         System.out.println("Empty message!!!!!!!");
@@ -60,8 +60,6 @@ public class Producer extends Thread {
                     try {
                         Thread.sleep(iMsgTimeOutError);
                         Thread.sleep(this.iMsgTimeOut);
-
-                        // TODO: set up user passable sending timeout!
                     }
                     catch (Exception se) {
 
