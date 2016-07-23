@@ -2,8 +2,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>sensor.producer</groupId>
-  <artifactId>sensorproducer</artifactId>
+  <groupId>sensing-world-emulator</groupId>
+  <artifactId>sensing-world-emulator</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>sensorproducer Maven Webapp</name>
@@ -195,22 +195,8 @@
 
     </dependencies>
 
-      <!-- Make it as open source with JBoss -->
-      <!--
-    <repository>
-      <id>jboss</id>
-      <url>http://repository.jboss.com/maven2</url>
-      <releases>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  -->
-
   <build>
-      <finalName>sensorproducer</finalName>
+      <finalName>sensing-world-emulator</finalName>
 
       <plugins>
           <plugin>
@@ -240,75 +226,9 @@
                   <ajpPort>8109</ajpPort>
               </configuration>
           </plugin>
-
-          <!-- Beginning of ActiveMQ settings -->
-          <!-- Make sure that activemq.xml file contains the server url settings.
-               Exampel of these settings are shown at the end of this file. -->
-          <!--
-          <plugin>
-              <groupId>org.apache.activemq.tooling</groupId>
-              <artifactId>activemq-maven-plugin</artifactId>
-              <version>5.13.3</version>
-              <configuration>
-                  <configUri>xbean:file:./conf/activemq.xml</configUri>
-                  <fork>false</fork>
-                  <systemProperties>
-                      <property>
-                          <name>javax.net.ssl.keyStorePassword</name>
-                          <value>password</value>
-                      </property>
-                      <property>
-                          <name>org.apache.activemq.default.directory.prefix</name>
-                          <value>./target/</value>
-                      </property>
-                  </systemProperties>
-              </configuration>
-              <dependencies>
-                  <dependency>
-                      <groupId>org.springframework</groupId>
-                      <artifactId>spring</artifactId>
-                      <version>2.5.5</version>
-                  </dependency>
-                  <dependency>
-                      <groupId>org.mortbay.jetty</groupId>
-                      <artifactId>jetty-xbean</artifactId>
-                      <version>6.1.11</version>
-                  </dependency>
-                  <dependency>
-                      <groupId>org.apache.camel</groupId>
-                      <artifactId>camel-activemq</artifactId>
-                      <version>1.1.0</version>
-                  </dependency>
-              </dependencies>
-          </plugin>
-          -->
-          <!-- End of ActiveMQ settings -->
       </plugins>
-
-
 
   </build>
 </project>
 
 
-<!--
-Configuration file for ActiveMQ, which will reside in (ActiveMQ/)conf/activemq.xml.
-Below is the very minimal config. In real case the uri would be a real tcp-ip address.
-
-<?xml version="1.0"?>
-    <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:amq="http://activemq.apache.org/schema/core"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-  http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core
-  http://activemq.apache.org/schema/core/activemq-core.xsd
-  ">
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="./data">
-        // The transport connectors ActiveMQ will listen to:
-        <transportConnectors>
-            <transportConnector name="openwire" uri="tcp://localhost:61616"/>
-        </transportConnectors>
-    </broker>
-</beans>
--->
