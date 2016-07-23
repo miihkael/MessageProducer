@@ -66,8 +66,8 @@ public class MessagePojo {
         return sRet.toString();
 
         // Example:
-        // {"token": "adsfdsafdsf",
-        // "data": [{"datatype": "ACC","data": {"x": 0.4. "y": 0.3, "z": 0.3}}, {"datatype": "HUM", "data": 20}]}
+        // {"apikey": "adsfdsafdsf","timestamp":12345678901234,
+        // "data": [{"datatype": "ACC","value": {"x": 0.4. "y": 0.3, "z": 0.3}}, {"datatype": "HUM", "value": 20}]}
     }
 
     // =======================================================000
@@ -153,8 +153,8 @@ public class MessagePojo {
                     fStore = true;
                     break;
                 case TMP:
-                    iLow = -60;
-                    iHigh = 180;
+                    iLow = 15;
+                    iHigh = 25;
                     lVal = (Math.random() * (iHigh - iLow)) + iLow;
                     df.applyPattern("###.##");
                     df.setRoundingMode(RoundingMode.DOWN);

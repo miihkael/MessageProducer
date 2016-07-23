@@ -59,6 +59,7 @@ public class HomeController {
         mainSessionData = new DSessionData();
         boolean fRes = createSensors(mainSessionData, rootPath);
 
+
         // mainSessionData.setExecutor();     // This calls: xyz = Executors.newFixedThreadPool(maxThreadCount);
         logger.debug("CREATE finished");
     }
@@ -144,7 +145,6 @@ public class HomeController {
 
     @RequestMapping(value = {"", "/", "/home"}, method = RequestMethod.POST)
     public String home(Model model,
-                       //@ModelAttribute("sessionData") DSessionData sesData,
                        @ModelAttribute("sensorForm") SensorForm sensorForm,
                        BindingResult bindingResult,
                        @RequestParam("actionbutton") String strButton )
@@ -176,11 +176,13 @@ public class HomeController {
             String rootPath = servletContext.getRealPath("/");
             logger.debug("home(POST): reloading from '" + rootPath + "'!");
 
+            mainSessionData.deleteActiveSensors();
+
             mainSessionData = new DSessionData();
             createSensors(mainSessionData, rootPath);
-            //model.addAttribute("sessionData", mainSessionData);
+            model.addAttribute("sessionData", mainSessionData);
 
-            return "/home";
+            return "redirect:/home";
         }
 
         if (sensorForm == null) {

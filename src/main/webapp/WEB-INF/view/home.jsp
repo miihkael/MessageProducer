@@ -25,25 +25,24 @@
     <table>
         <tr>
             <td class="nbrcol01">1.)</td>
-            <td class="txtcol01">Mark the 'Sending' checkbox for the sensor to be messaging. Sensor types are:</td>
+            <td class="txtcol01">Mark the 'Sending' checkbox for the sensor to be messaging. Example of
+                sensor types:</td>
         </tr>
         <tr>
             <td></td>
             <th>
                 <table>
                     <tr>
-                        <td class="nbrcol01">INTEGER:</td>
-                        <td>Random number between -50 and 50 is sent repeatedly.</td>
+                        <td class="nbrcol01">ACC: acceleration</td>
+                        <td>Random number between -1.0 and 1.0: Three values for x, y, and z-axis separately.</td>
                     </tr>
                     <tr>
-                        <td class="nbrcol01">DECIMAL:</td>
-                        <td>Random number between 0.0 and 1.0 is sent repeatedly.</td>
+                        <td class="nbrcol01">HUM: humidity</td>
+                        <td>Random number between 0 and 100 percent.</td>
                     </tr>
                     <tr>
-                        <td class="nbrcol01">FILE:</td>
-                        <td>File based messaging reads 'Message File' one line at a time and sends it as a message.
-                            At the end of the file messaging continues again from the beginning of the file.
-                            The file must be located at the server application directory.
+                        <td class="nbrcol01">TMP: temperature</td>
+                        <td>Random number between 15 and 25.
                         </td>
                     </tr>
                 </table>
@@ -52,7 +51,7 @@
         <tr>
             <td class="nbrcol01">2.)</td>
             <td class="txtcol01">Adjust the sending time-out (for the selected) sensors if necessary: Value can be
-                between 300 ms and 10000 ms (default value is 500 ms).</td>
+                between 300 ms and 60000 ms (default value is 500 ms).</td>
         </tr>
         <tr>
             <td class="nbrcol01">3.)</td>
@@ -104,7 +103,7 @@
                     <td>${sensor.sensorDataType}<input type="hidden" name="sensorsInForm[${status.index}].sensorType" value="${sensor.sensorDataType}"/></td>
                     <td>${sensor.messageFile}<input type="hidden" name="sensorsInForm[${status.index}].messageFile" value="${sensor.messageFile}"/></td>
                     <td>
-                        <input type="number" name="sensorsInForm[${status.index}].timeOut" value="${sensor.timeOut}" min="300" max="10000"  />
+                        <input type="number" name="sensorsInForm[${status.index}].timeOut" value="${sensor.timeOut}" min="300" max="60000"  />
                     </td>
                     <td>
                     <c:choose>
